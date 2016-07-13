@@ -238,7 +238,7 @@ var theaters = L.geoJson(null, {
     pointToLayer: function (feature, latlng) {
         return L.marker(latlng, {
             icon: L.icon({
-                iconUrl: "img/_auditorio.png",
+                iconUrl: "img/auditorio.png",
                 iconSize: [24, 28],
                 iconAnchor: [12, 28],
                 popupAnchor: [0, -25]
@@ -258,7 +258,7 @@ var theaters = L.geoJson(null, {
                     highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
                 }
             });
-            $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="img/_auditorio.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+            $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="img/auditorio.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
             theaterSearch.push({
                 nombre: layer.feature.properties.NAME,
                 ubicacion: layer.feature.properties.ADDRESS1,
@@ -281,7 +281,7 @@ var museums = L.geoJson(null, {
     pointToLayer: function (feature, latlng) {
         return L.marker(latlng, {
             icon: L.icon({
-                iconUrl: "img/_biblioteca.png",
+                iconUrl: "img/biblioteca.png",
                 iconSize: [24, 28],
                 iconAnchor: [12, 28],
                 popupAnchor: [0, -25]
@@ -301,7 +301,7 @@ var museums = L.geoJson(null, {
                     highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
                 }
             });
-            $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="img/_biblioteca.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+            $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="img/biblioteca.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
             museumSearch.push({
                 nombre: layer.feature.properties.NAME,
                 ubicacion: layer.feature.properties.ADRESS1,
@@ -333,7 +333,7 @@ function syncSidebar() {
     theaters.eachLayer(function (elementoGeo) {
         if (map.hasLayer(theaterLayer)) {
             if (map.getBounds().contains(elementoGeo.getLatLng())) {
-                $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(elementoGeo) + '" lat="' + elementoGeo.getLatLng().lat + '" lng="' + elementoGeo.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="img/_auditorio.png"></td><td class="feature-name">' + elementoGeo.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+                $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(elementoGeo) + '" lat="' + elementoGeo.getLatLng().lat + '" lng="' + elementoGeo.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="img/auditorio.png"></td><td class="feature-name">' + elementoGeo.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
             }
         }
     });
@@ -341,7 +341,7 @@ function syncSidebar() {
     museums.eachLayer(function (elementoGeo) {
         if (map.hasLayer(museumLayer)) {
             if (map.getBounds().contains(elementoGeo.getLatLng())) {
-                $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(elementoGeo) + '" lat="' + elementoGeo.getLatLng().lat + '" lng="' + elementoGeo.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="img/_biblioteca.png"></td><td class="feature-name">' + elementoGeo.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+                $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(elementoGeo) + '" lat="' + elementoGeo.getLatLng().lat + '" lng="' + elementoGeo.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="img/biblioteca.png"></td><td class="feature-name">' + elementoGeo.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
             }
         }
     });
@@ -569,8 +569,8 @@ var baseLayers = {
 
 var groupedOverlays = {
     "Puntos de Interés": {
-        "<img src='img/_auditorio.png' width='24' height='28'>&nbsp;Theaters": theaterLayer,
-        "<img src='img/_biblioteca.png' width='24' height='28'>&nbsp;Museums": museumLayer
+        "<img src='img/auditorio.png' width='24' height='28'>&nbsp;Theaters": theaterLayer,
+        "<img src='img/biblioteca.png' width='24' height='28'>&nbsp;Museums": museumLayer
     },
     "Referencia": {
         "Edificios": Edificios,
@@ -662,7 +662,7 @@ $(document).one("ajaxStop", function () {
         displayKey: "nombre",
         source: theatersBH.ttAdapter(),
         templates: {
-            header: "<h4 class='typeahead-header'><img src='img/_auditorio.png' width='24' height='28'>&nbsp;Theaters</h4>",
+            header: "<h4 class='typeahead-header'><img src='img/auditorio.png' width='24' height='28'>&nbsp;Theaters</h4>",
             suggestion: Handlebars.compile(["{{nombre}}<br>&nbsp;<small>{{ubicacion}}</small>"].join(""))
         }
     }, {
@@ -670,7 +670,7 @@ $(document).one("ajaxStop", function () {
         displayKey: "nombre",
         source: museumsBH.ttAdapter(),
         templates: {
-            header: "<h4 class='typeahead-header'><img src='img/_biblioteca.png' width='24' height='28'>&nbsp;Museums</h4>",
+            header: "<h4 class='typeahead-header'><img src='img/biblioteca.png' width='24' height='28'>&nbsp;Museums</h4>",
             suggestion: Handlebars.compile(["{{nombre}}<br>&nbsp;<small>{{ubicacion}}</small>"].join(""))
         }
     }).on("typeahead:selected", function (obj, datum) {
