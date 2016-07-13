@@ -11,6 +11,14 @@ var map, featureList, edificiosSearch = [],
     oficinasSearch = [],
     bibliotecasSearch = [];
 
+if (jQuery.browser.mobile) {
+    alert("Hola navegador movil");
+}
+else
+{
+    alert("Hola navegador escritorio");
+}
+
 /* Capas geograficas de Google */
 var googleSatelliteLayer = new L.Google();
 var googleTerrainLayer = new L.Google('TERRAIN');
