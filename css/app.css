@@ -188,19 +188,19 @@ input[type="checkbox"] {
     text-align: center;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 992px) {
     .navbar .navbar-brand {
-        font-size: 14px;
+        font-size: 18px;
     }
     #features {
-        font-size: 11px;
-    }
-    #sidebar {
-        width: 40%
+        font-size: 13px;
     }
     .feature-row {
         cursor: pointer;
-        width: 80%;
+        width: 90%;
+    }
+    #sidebar {
+        width: 33%
     }
 }
 
@@ -227,19 +227,19 @@ input[type="checkbox"] {
     }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 400px) {
     .navbar .navbar-brand {
-        font-size: 18px;
+        font-size: 15px;
     }
     #features {
-        font-size: 13px;
+        font-size: 11px;
+    }
+    #sidebar {
+        width: 40%
     }
     .feature-row {
         cursor: pointer;
-        width: 90%;
-    }
-    #sidebar {
-        width: 33%
+        width: 80%;
     }
 }
 
