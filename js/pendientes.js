@@ -115,24 +115,26 @@ function syncSidebar() {
 }
 
 
-/* Single marker cluster layer to hold all clusters */
-var markerClusters = new L.MarkerClusterGroup({
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    zoomToBoundsOnClick: true,
-    disableClusteringAtZoom: 16
-});
+/* Attribution control */
+function updateAttribution(e) {
+    $.each(map._layers, function (index, layer) {
+        if (layer.getAttribution) {
+            $("#attribution").html((layer.getAttribution()));
+        }
+    });
+}
+map.on("layeradd", updateAttribution);
+map.on("layerremove", updateAttribution);
 
-
-map = L.map("map", {
-    zoom: 16,
-    center: [4.94, -74.01],
-    layers: [googleTerrainLayer, Edificios, markerClusters, highlight, limite],
-    zoomControl: false,
-    attributionControl: false,
-    maxZoom: 21
-        //maxBounds: [ /*south west*/ [4.93651, -74.01649], /*north east*/ [4.94699, -74.00674]]
+var attributionControl = L.control({
+    position: "bottomright"
 });
+attributionControl.onAdd = function (map) {
+    var div = L.DomUtil.create("div", "leaflet-control-attribution");
+    div.innerHTML = "<span class='hidden-xs'>Desarrollado por la <a href='http://www.umng.edu.co' target='_blank'>Universidad Militar Nueva Granada</a> | </span><a href='#' onclick='$(\"#attributionModal\").modal(\"show\"); return false;'>Attribution</a>";
+    return div;
+};
+map.addControl(attributionControl);
 
 /* Layer control listeners that allow for a single markerClusters layer */
 map.on("overlayadd", function (e) {
@@ -162,89 +164,10 @@ map.on("moveend", function (e) {
     syncSidebar();
 });
 
-/* Clear feature highlight when map is clicked */
-map.on("click", function (e) {
-    highlight.clearLayers();
-    map._layers[Edificios._leaflet_id].setStyle(defaultStyleEdificios);
-    $('[id^="popup-"]').remove();
-});
 
-/* Attribution control */
-function updateAttribution(e) {
-    $.each(map._layers, function (index, layer) {
-        if (layer.getAttribution) {
-            $("#attribution").html((layer.getAttribution()));
-        }
-    });
-}
-map.on("layeradd", updateAttribution);
-map.on("layerremove", updateAttribution);
 
-var attributionControl = L.control({
-    position: "bottomright"
-});
-attributionControl.onAdd = function (map) {
-    var div = L.DomUtil.create("div", "leaflet-control-attribution");
-    div.innerHTML = "<span class='hidden-xs'>Desarrollado por la <a href='http://www.umng.edu.co' target='_blank'>Universidad Militar Nueva Granada</a> | </span><a href='#' onclick='$(\"#attributionModal\").modal(\"show\"); return false;'>Attribution</a>";
-    return div;
-};
-map.addControl(attributionControl);
 
-var zoomControl = L.control.zoom({
-    position: "bottomright"
-}).addTo(map);
 
-/* GPS enabled geolocation control set to follow the user's location */
-var locateControl = L.control.locate({
-    position: "bottomright",
-    drawCircle: true,
-    follow: true,
-    setView: true,
-    keepCurrentZoomLevel: true,
-    markerStyle: {
-        weight: 1,
-        opacity: 0.8,
-        fillOpacity: 0.8
-    },
-    circleStyle: {
-        weight: 1,
-        clickable: false
-    },
-    icon: "fa fa-location-arrow",
-    metric: true,
-    strings: {
-        title: "Mi Localización",
-        popup: "Ud se encuentra dentro de un radio de {distance} {unit} de este punto",
-        outsideMapBoundsMsg: "Ud se encuentra fuera de los límites del Campus Nueva Granada"
-    },
-    locateOptions: {
-        maxZoom: 21,
-        watch: true,
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 10000
-    }
-}).addTo(map);
-
-var baseLayers = {
-    //"Mapa de Vías": mapquestOSM,
-    "Mapa de terreno": googleTerrainLayer,
-    "Imagen Áerea": googleSatelliteLayer
-};
-
-var groupedOverlays = {
-    "Puntos de Interés": {
-        "<img src='img/auditorio.png' width='24' height='28'>&nbsp;Theaters": theaterLayer,
-        "<img src='img/biblioteca.png' width='24' height='28'>&nbsp;Museums": museumLayer
-    },
-    "Referencia": {
-        "Edificios": Edificios
-    }
-};
-
-var layerControl = L.control.groupedLayers(baseLayers, groupedOverlays, {
-    collapsed: true
-}).addTo(map);
 
 /* Highlight search box text on click */
 $("#searchbox").click(function () {
@@ -372,13 +295,3 @@ $(document).one("ajaxStop", function () {
     $(".twitter-typeahead").css("position", "static");
     $(".twitter-typeahead").css("display", "block");
 });
-
-// Leaflet patch to make layer control scrollable on touch browsers
-var container = $(".leaflet-control-layers")[0];
-if (!L.Browser.touch) {
-    L.DomEvent
-        .disableClickPropagation(container)
-        .disableScrollPropagation(container);
-} else {
-    L.DomEvent.disableClickPropagation(container);
-}
