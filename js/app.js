@@ -1,3 +1,6 @@
+/*jslint browser: true*/
+/*global $, jQuery, alert, L*/
+
 var map, featureList, edificiosSearch = [],
     theaterSearch = [],
     museumSearch = [],
@@ -52,7 +55,7 @@ function labelEdificios(layer, properties) {
     layer.setStyle(highlightStyleEdificios);
 
     // Insert a headline into that popup
-    if (properties.NOMBRE != null) {
+    if (properties.NOMBRE !== null) {
         // Create a popup with a unique ID linked to this record
         var popup = $("<div></div>", {
             id: "popup-" + properties.ID,
@@ -133,7 +136,7 @@ function ajustTitle() {
         $('#Titulo').text('Campus UMNG');
     } else {
         $('#Titulo').text('Campus Nueva Granada');
-    };
+    }
 }
 
 /* Ajusta el zoom de la aplicacion */
@@ -250,7 +253,7 @@ $("#full-extent-toggle-btn").click(function () {
 $("#nav-btn").click(function () {
     $(".navbar-collapse").collapse("toggle");
     return false;
-})
+});
 
 /* ------------------- MAPA ------------------*/
 map = L.map("map", {

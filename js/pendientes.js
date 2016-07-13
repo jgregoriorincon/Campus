@@ -1,3 +1,6 @@
+/*jslint browser: true*/
+/*global $, jQuery, alert, L*/
+
 /**************************** FALTA *******************************/
 /* Limpia la capa para adicionar el layer control para escuchar cuando se quita o pone la capa al cluster */
 var theaterLayer = L.geoJson(null);
