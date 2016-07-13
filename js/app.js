@@ -318,10 +318,10 @@ var baseLayers = {
 };
 
 var groupedOverlays = {
-    /*"Puntos de Interés": {
+    "Puntos de Interés": {
         "<img src='img/auditorio.png' width='24' height='28'>&nbsp;Theaters": theaterLayer,
         "<img src='img/biblioteca.png' width='24' height='28'>&nbsp;Museums": museumLayer
-    },*/
+    },
     "Referencia": {
         "Edificios": Edificios
     }
