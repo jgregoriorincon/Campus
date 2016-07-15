@@ -2,8 +2,7 @@
 /*global $, jQuery, alert, L*/
 
 var map, featureList, edificiosSearch = [],
-    theaterSearch = [],
-    museumSearch = [],
+    parqueaderoSearch = [],
     salonesSearch = [],
     laboratoriosSearch = [],
     cafeteriasSearch = [],
@@ -11,35 +10,15 @@ var map, featureList, edificiosSearch = [],
     oficinasSearch = [],
     bibliotecasSearch = [];
 
+/*
 if (jQuery.browser.mobile) {
     alert("Hola navegador movil");
-}
-else
-{
+} else {
     alert("Hola navegador escritorio");
 }
+*/
 
-/* Capas geograficas de Google */
-var googleSatelliteLayer = new L.Google();
-var googleTerrainLayer = new L.Google('TERRAIN');
-
-/* Layer de seleccionado o resaltado */
-var highlight = L.geoJson(null);
-var highlightStyle = {
-    stroke: false,
-    fillColor: "#00FFFF",
-    fillOpacity: 0.7,
-    radius: 10
-};
-
-/* Capa de Cluster */
-var markerClusters = new L.MarkerClusterGroup({
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    zoomToBoundsOnClick: true,
-    disableClusteringAtZoom: 16
-});
-
+/* Estilos para capas */
 var defaultStyleEdificios = {
     color: "#2262CC",
     weight: 2,
@@ -47,6 +26,7 @@ var defaultStyleEdificios = {
     fillOpacity: 0.1,
     fillColor: "#2262CC"
 };
+
 var highlightStyleEdificios = {
     color: '#2262CC',
     weight: 3,
@@ -55,6 +35,44 @@ var highlightStyleEdificios = {
     fillColor: '#2262CC'
 };
 
+var highlightStyle = {
+    stroke: false,
+    fillColor: "#00FFFF",
+    fillOpacity: 0.7,
+    radius: 10
+};
+
+/* Capas geograficas de Google */
+var googleSatelliteLayer = new L.Google();
+var googleTerrainLayer = new L.Google('TERRAIN');
+
+/* Layer de seleccionado o resaltado */
+var highlight = L.geoJson(null);
+
+/* Capa de Cluster */
+var markerClusters = new L.MarkerClusterGroup({
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+    disableClusteringAtZoom: 20
+});
+
+/* Variable de limite de zonas */
+var limite = L.geoJson(null, {
+    style: function (feature) {
+        return {
+            color: "black",
+            fill: false,
+            opacity: 0,
+            clickable: false
+        };
+    }
+});
+$.getJSON("data/limite.geojson", function (data) {
+    limite.addData(data);
+});
+
+/* Funcion de procesamiento de features de Edificios */
 function labelEdificios(layer, properties) {
     $('[id^="popup-"]').remove();
     map._layers[Edificios._leaflet_id].setStyle(defaultStyleEdificios);
@@ -90,7 +108,7 @@ function labelEdificios(layer, properties) {
     }
 }
 
-/* Variable de limite de zonas */
+/* Capa de Edificios */
 var Edificios = L.geoJson(null, {
     onEachFeature: function (feature, layer) {
         layer.setStyle(defaultStyleEdificios);
@@ -110,6 +128,7 @@ var Edificios = L.geoJson(null, {
                 layer.setStyle(defaultStyleEdificios);
                 $('[id^="popup-"]').remove();
             });
+
             edificiosSearch.push({
                 name: layer.feature.properties.NOMBRE,
                 source: "Edificios",
@@ -123,19 +142,81 @@ $.getJSON("data/edificios.geojson", function (data) {
     Edificios.addData(data);
 });
 
-/* Variable de limite de zonas */
-var limite = L.geoJson(null, {
-    style: function (feature) {
-        return {
-            color: "black",
-            fill: false,
-            opacity: 0,
-            clickable: false
-        };
+/* Capa de parqueaderos */
+var parqueaderoLayer = L.geoJson(null);
+var parqueadero = L.geoJson(null, {
+    pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {
+            icon: L.icon({
+                iconUrl: "img/parqueadero.png",
+                iconSize: [18, 18],
+                iconAnchor: [12, 28],
+                popupAnchor: [0, -25]
+            }),
+            title: feature.properties.NOMBRE,
+            riseOnHover: true
+        });
+    },
+    onEachFeature: function (feature, layer) {
+        if (feature.properties) {
+
+            var nombre, telefono, ubicacion, correo, contacto;
+
+            if (feature.properties.NOMBRE !== null) {
+                nombre = "<tr><th>Nombre</th><td>" + feature.properties.NOMBRE + "</td></tr>";
+            } else {
+                nombre = "";
+            }
+
+            if (feature.properties.TELEFONO !== null) {
+                telefono = "<tr><th>Telefono</th><td>" + feature.properties.TELEFONO + "</td></tr>";
+            } else {
+                telefono = "";
+            }
+
+            if (feature.properties.UBICACION !== null) {
+                ubicacion = "<tr><th>Ubicacion</th><td>" + feature.properties.UBICACION + "</td></tr>";
+            } else {
+                ubicacion = "";
+            }
+
+            if (feature.properties.CORREO !== null) {
+                correo = "<tr><th>Correo</th><td>" + feature.properties.CORREO + "</td></tr>";
+            } else {
+                correo = "";
+            }
+
+            if (feature.properties.CONTACTO !== null) {
+                contacto = "<tr><th>Contacto</th><td>" + feature.properties.CONTACTO + "</td></tr>";
+            } else {
+                contacto = "";
+            }
+
+            var content = "<table class='table table-striped table-bordered table-condensed'>" + ubicacion + contacto + correo + telefono + "<table>";
+
+            layer.on({
+                click: function (e) {
+                    $("#feature-title").html(feature.properties.NOMBRE);
+                    $("#feature-info").html(content);
+                    $("#featureModal").modal("show");
+                    highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
+                }
+            });
+            $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="img/parqueadero.png"></td><td class="feature-name">' + layer.feature.properties.NOMBRE + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+            parqueaderoSearch.push({
+                nombre: layer.feature.properties.NOMBRE,
+                ubicacion: layer.feature.properties.UBICACION,
+                source: "Parqueadero",
+                id: L.stamp(layer),
+                lat: layer.feature.geometry.coordinates[1],
+                lng: layer.feature.geometry.coordinates[0]
+            });
+        }
     }
 });
-$.getJSON("data/limite.geojson", function (data) {
-    limite.addData(data);
+$.getJSON("data/parqueaderos.geojson", function (data) {
+    parqueadero.addData(data);
+    map.addLayer(parqueaderoLayer);
 });
 
 /* Ajusta el titulo de la aplicacion */
@@ -237,12 +318,12 @@ if (!("ontouchstart" in window)) {
 /* Funcion que al hacer mouseout en las filas de la tabla de datos */
 $(document).on("mouseout", ".feature-row", clearHighlight);
 
-/* Funcion que muestra la ventana de ayuda al hacerclick en el boton o hiperenlace About-btn */
+/* Funcion que muestra la ventana de ayuda al hacer click en el boton o hiperenlace About-btn */
 $("#about-btn").click(function () {
     showHelp();
 });
 
-/* Funcion que muestra la ventana de ayuda al hacerclick en el boton o hiperenlace About-btn */
+/* Funcion que muestra la ventana de ayuda al hacer click en el boton o hiperenlace About-btn */
 $("#about-toggle-btn").click(function () {
     showHelp();
 });
@@ -270,65 +351,66 @@ map = L.map("map", {
     layers: [googleTerrainLayer, Edificios, markerClusters, highlight, limite],
     zoomControl: false,
     attributionControl: false,
-    maxZoom: 21
-        //maxBounds: [ /*south west*/ [4.93651, -74.01649], /*north east*/ [4.94699, -74.00674]]
+    maxZoom: 21,
+    maxBounds: [ /*south west*/ [4.93651, -74.01649], /*north east*/ [4.94699, -74.00674]]
 });
 
-/* Clear feature highlight when map is clicked */
+/* Limpia el mapa al dar clic */
 map.on("click", function (e) {
     highlight.clearLayers();
     map._layers[Edificios._leaflet_id].setStyle(defaultStyleEdificios);
     $('[id^="popup-"]').remove();
 });
 
+/* Adiciona la opciones del zoom */
 var zoomControl = L.control.zoom({
     position: "bottomright"
 }).addTo(map);
 
-/* GPS enabled geolocation control set to follow the user's location */
-var locateControl = L.control.locate({
-    position: "bottomright",
-    drawCircle: true,
-    follow: true,
-    setView: true,
-    keepCurrentZoomLevel: true,
-    markerStyle: {
-        weight: 1,
-        opacity: 0.8,
-        fillOpacity: 0.8
-    },
-    circleStyle: {
-        weight: 1,
-        clickable: false
-    },
-    icon: "fa fa-location-arrow",
-    metric: true,
-    strings: {
-        title: "Mi Localización",
-        popup: "Ud se encuentra dentro de un radio de {distance} {unit} de este punto",
-        outsideMapBoundsMsg: "Ud se encuentra fuera de los límites del Campus Nueva Granada"
-    },
-    locateOptions: {
-        maxZoom: 21,
-        watch: true,
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 10000
-    }
-}).addTo(map);
-
+/* Habilita el posicionamiento por GPS solo en dispositivos moviles */
+if (jQuery.browser.mobile) {
+    var locateControl = L.control.locate({
+        position: "bottomright",
+        drawCircle: true,
+        follow: true,
+        setView: true,
+        keepCurrentZoomLevel: true,
+        markerStyle: {
+            weight: 1,
+            opacity: 0.8,
+            fillOpacity: 0.8
+        },
+        circleStyle: {
+            weight: 1,
+            clickable: false
+        },
+        icon: "fa fa-location-arrow",
+        metric: true,
+        strings: {
+            title: "Mi Localización",
+            popup: "Ud se encuentra dentro de un radio de {distance} {unit} de este punto",
+            outsideMapBoundsMsg: "Ud se encuentra fuera de los límites del Campus Nueva Granada"
+        },
+        locateOptions: {
+            maxZoom: 21,
+            watch: true,
+            enableHighAccuracy: true,
+            maximumAge: 10000,
+            timeout: 10000
+        }
+    }).addTo(map);
+}
 
 /* ------------------- CAPAS -------------- */
 var baseLayers = {
-    //"Mapa de Vías": mapquestOSM,
     "Mapa de terreno": googleTerrainLayer,
     "Imagen Áerea": googleSatelliteLayer
 };
 
 var groupedOverlays = {
     "Puntos de Interés": {
-        "<img src='img/auditorio.png' width='24' height='28'>&nbsp;Theaters": theaterLayer,
-        "<img src='img/biblioteca.png' width='24' height='28'>&nbsp;Museums": museumLayer
+        "<img src='img/parqueadero.png' width='18' height='18'>&nbsp;Parqueaderos": parqueaderoLayer
+            //,"<img src='img/bannos.png' width='20' height='20'>&nbsp;Baños": museumLayer
     },
     "Referencia": {
         "Edificios": Edificios
@@ -349,3 +431,174 @@ if (!L.Browser.touch) {
 } else {
     L.DomEvent.disableClickPropagation(container);
 }
+
+/**************************** FALTA *******************************/
+
+/* Realiza la comunicacion entre el listado y el mapa, y construye dicha lista segun el cambio de zoom */
+function syncSidebar() {
+    /* Limpia el listado de elementos */
+    $("#feature-list tbody").empty();
+    /* recorre el layer XXX y adiciona solo los elementos que estan en los limites de la vista del mapa */
+    parqueadero.eachLayer(function (elementoGeo) {
+        if (map.hasLayer(parqueaderoLayer)) {
+            if (map.getBounds().contains(elementoGeo.getLatLng())) {
+                $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(elementoGeo) + '" lat="' + elementoGeo.getLatLng().lat + '" lng="' + elementoGeo.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="18" height="18" src="img/parqueadero.png"></td><td class="feature-name">' + elementoGeo.feature.properties.NOMBRE + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+            }
+        }
+    });
+
+    /* Actualiza los elementos en la lista */
+    featureList = new List("features", {
+        valueNames: ["feature-name"]
+    });
+    featureList.sort("feature-name", {
+        order: "asc"
+    });
+}
+
+
+/* Attribution control */
+function updateAttribution(e) {
+    $.each(map._layers, function (index, layer) {
+        if (layer.getAttribution) {
+            $("#attribution").html((layer.getAttribution()));
+        }
+    });
+}
+map.on("layeradd", updateAttribution);
+map.on("layerremove", updateAttribution);
+
+var attributionControl = L.control({
+    position: "bottomright"
+});
+attributionControl.onAdd = function (map) {
+    var div = L.DomUtil.create("div", "leaflet-control-attribution");
+    div.innerHTML = "<span class='hidden-xs'>Desarrollado por la <a href='http://www.umng.edu.co' target='_blank'>Universidad Militar Nueva Granada</a> | </span><a href='#' onclick='$(\"#attributionModal\").modal(\"show\"); return false;'>Attribution</a>";
+    return div;
+};
+map.addControl(attributionControl);
+
+/* Layer control listeners that allow for a single markerClusters layer */
+map.on("overlayadd", function (e) {
+    if (e.layer === parqueaderoLayer) {
+        markerClusters.addLayer(parqueadero);
+        syncSidebar();
+    }
+});
+
+map.on("overlayremove", function (e) {
+    if (e.layer === parqueaderoLayer) {
+        markerClusters.removeLayer(parqueadero);
+        syncSidebar();
+    }
+});
+
+/* Filter sidebar feature list to only show features in current map bounds */
+map.on("moveend", function (e) {
+    syncSidebar();
+});
+
+
+
+
+
+
+/* Highlight search box text on click */
+$("#searchbox").click(function () {
+    $(this).select();
+});
+
+/* Prevent hitting enter from refreshing the page */
+$("#searchbox").keypress(function (e) {
+    if (e.which == 13) {
+        e.preventDefault();
+    }
+});
+
+$("#featureModal").on("hidden.bs.modal", function (e) {
+    $(document).on("mouseout", ".feature-row", clearHighlight);
+});
+
+/* Typeahead search functionality */
+$(document).one("ajaxStop", function () {
+    $("#loading").hide();
+    sizeLayerControl();
+    /* Ajustar el mapa al limite de la Universidad */
+    //map.fitBounds(limite.getBounds());
+    featureList = new List("features", {
+        valueNames: ["feature-name"]
+    });
+    featureList.sort("feature-name", {
+        order: "asc"
+    });
+
+    var EdificiosBH = new Bloodhound({
+        name: "Edificios",
+        datumTokenizer: function (d) {
+            return Bloodhound.tokenizers.whitespace(d.name);
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: edificiosSearch,
+        limit: 10
+    });
+
+    var parqueaderoBH = new Bloodhound({
+        name: "Parqueaderos",
+        datumTokenizer: function (d) {
+            return Bloodhound.tokenizers.whitespace(d.nombre);
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: parqueaderoSearch,
+        limit: 10
+    });
+
+    EdificiosBH.initialize();
+    parqueaderoBH.initialize();
+
+    /* instantiate the typeahead UI */
+    $("#searchbox").typeahead({
+        minLength: 3,
+        highlight: true,
+        hint: false
+    }, {
+        name: "Edificios",
+        displayKey: "name",
+        source: EdificiosBH.ttAdapter(),
+        templates: {
+            header: "<h4 class='typeahead-header'>Edificios</h4>"
+        }
+    }, {
+        name: "Parqueaderos",
+        displayKey: "Nombre",
+        source: parqueaderoBH.ttAdapter(),
+        templates: {
+            header: "<h4 class='typeahead-header'><img src='img/parqueadero.png' width='18' height='18'>&nbsp;Parqueaderos</h4>",
+            suggestion: Handlebars.compile(["{{nombre}}<br>&nbsp;<small>{{ubicacion}}</small>"].join(""))
+        }
+    }).on("typeahead:selected", function (obj, datum) {
+        if (datum.source === "Edificios") {
+            map.fitBounds(datum.bounds);
+            map._layers[datum.id].fire("click");
+        }
+        if (datum.source === "Parqueadero") {
+            if (!map.hasLayer(parqueaderoLayer)) {
+                map.addLayer(parqueaderoLayer);
+            }
+            map.setView([datum.lat, datum.lng], 19);
+            if (map._layers[datum.id]) {
+                map._layers[datum.id].fire("click");
+            }
+        }
+        if ($(".navbar-collapse").height() > 50) {
+            $(".navbar-collapse").collapse("hide");
+        }
+    }).on("typeahead:opened", function () {
+        $(".navbar-collapse.in").css("max-height", $(document).height() - $(".navbar-header").height());
+        $(".navbar-collapse.in").css("height", $(document).height() - $(".navbar-header").height());
+    }).on("typeahead:closed", function () {
+        $(".navbar-collapse.in").css("max-height", "");
+        $(".navbar-collapse.in").css("height", "");
+    });
+    $(".twitter-typeahead").css("position", "static");
+    $(".twitter-typeahead").css("display", "block");
+});
